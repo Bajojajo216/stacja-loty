@@ -1,0 +1,36 @@
+name: Aktualizuj Loty z Azair
+
+on:
+  schedule:
+    # Odpalaj co 6 godzin
+    - cron: '0 */6 * * *'
+  workflow_dispatch: # Pozwala kliknac "Run" recznie
+
+permissions:
+  contents: write
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pobierz repozytorium
+        uses: actions/checkout@v4
+
+      - name: Przygotuj Pythona
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Zainstaluj biblioteki
+        run: pip install requests beautifulsoup4
+
+      - name: Uruchom skrypt
+        run: python scraper.py
+
+      - name: Zapisz wynik w repozytorium
+        run: |
+          git config --global user.name "Azair-Bot"
+          git config --global user.email "bot@github.com"
+          git add flight.json
+          git commit -m "Aktualizacja taniego lotu z Azair" || exit 0
+          git push
